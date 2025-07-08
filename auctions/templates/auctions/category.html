@@ -1,0 +1,37 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="bg-white p-6 rounded-lg shadow-md">
+    <form method="POST" action="{% url 'category' %}" class="flex flex-col md:flex-row items-center gap-4 mb-6">
+        {% csrf_token %}
+        <label for="category" class="text-amazon-blue font-semibold">Choose a category:</label>
+        <select name="category" id="category" class="px-4 py-2 rounded-md border border-gray-300 focus:ring-2 focus:ring-amazon-orange">
+            <option value="">All</option>
+            {% for cat in categories %}
+                <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="bg-amazon-orange hover:bg-orange-600 text-amazon-blue px-4 py-2 rounded-md transition-colors duration-200">
+            Add Filter
+        </button>
+    </form>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for product in products %}
+            <div class="bg-amazon-gray rounded-lg p-4 shadow hover:shadow-lg transition duration-300">
+                <img src="{{ product.product_image }}" alt="{{ product.product_name }}" class="w-full h-48 object-cover rounded-md mb-4">
+                <div class="product-info">
+                    <h2 class="text-lg font-bold text-amazon-blue mb-2">
+                        <a href="{% url 'listing' product.product_id %}" class="hover:text-amazon-orange transition-colors duration-200">
+                            {{ product.product_name }}
+                        </a>
+                    </h2>
+                    <h4 class="text-amazon-dark-gray">Price: ₹{{ product.base_price }}</h4>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-gray-500">No products available in this category.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

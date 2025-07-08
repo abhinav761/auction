@@ -1,0 +1,226 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<!-- Page Header with Filter Options -->
+<div class="bg-white border-b border-gray-200 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between py-4">
+        <div class="mb-4 md:mb-0">
+            <h1 class="text-2xl font-bold text-amazon-blue mb-2">Active Listings</h1>
+            <p class="text-amazon-dark-gray text-sm">Discover great deals on authentic items</p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <!-- Filter by Category -->
+            <div class="relative">
+                <a href="{% url 'category' %}" class="btn btn-secondary flex items-center hover:bg-amazon-orange hover:text-amazon-blue transition-colors duration-200">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                    </svg>
+                    Filter by Category
+                </a>
+            </div>
+            
+            <!-- Sort Options -->
+            <div class="relative">
+                <select class="form-control bg-white border-amazon-border text-amazon-blue py-2 px-3 pr-8 rounded-md focus:border-amazon-orange focus:ring-amazon-orange">
+                    <option value="newest">Newest First</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="ending-soon">Ending Soon</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+{% if listings %}
+    <!-- Results Count -->
+    <div class="mb-4">
+        <p class="text-amazon-dark-gray text-sm">
+            <span class="font-semibold">{{ listings|length }}</span> results for active listings
+        </p>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for product in listings %}
+        <div class="card-product hover-lift">
+            <!-- Product Image -->
+            <div class="relative">
+                {% if product.product_image %}
+                    <img src="{{ product.product_image }}" alt="{{ product.product_name }}" class="card-product-image">
+                {% else %}
+                    <div class="card-product-image bg-amazon-gray flex items-center justify-center">
+                        <svg class="w-12 h-12 text-amazon-dark-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                {% endif %}
+                
+                <!-- Status Badge -->
+                <div class="absolute top-2 right-2">
+                    <span class="badge badge-success">Active</span>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="card-product-body">
+                <div class="card-product-title">
+                    <a href="{% url 'listing' product.product_id %}" class="text-amazon-blue hover:text-amazon-orange transition-colors duration-200">
+                        {{ product.product_name }}
+                    </a>
+                </div>
+                
+                <!-- Price -->
+                <div class="card-product-price">
+                    ${{ product.base_price }}
+                </div>
+                
+                <!-- Description (if available) -->
+                {% if product.product_description %}
+                <div class="card-product-description">
+                    {{ product.product_description|truncatewords:15 }}
+                </div>
+                {% endif %}
+                
+                <!-- Additional Info -->
+                <div class="flex items-center justify-between text-xs text-amazon-dark-gray mb-3">
+                    <span>Starting Price</span>
+                    {% if product.end_date %}
+                        <span>Ends: {{ product.end_date|date:"M d" }}</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="card-product-footer">
+                    <a href="{% url 'listing' product.product_id %}" class="btn btn-primary btn-block mb-2">
+                        View Details
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'listing' product.product_id %}" class="btn btn-secondary btn-block text-sm">
+                            Place Bid
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-secondary btn-block text-sm">
+                            Login to Bid
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Load More / Pagination -->
+    <div class="mt-8 text-center">
+        <div class="pagination">
+            <span class="pagination-info text-amazon-dark-gray text-sm">
+                Showing all {{ listings|length }} active listings
+            </span>
+        </div>
+    </div>
+
+{% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16">
+        <div class="max-w-md mx-auto">
+            <!-- Empty State Icon -->
+            <div class="mb-6">
+                <svg class="w-24 h-24 text-amazon-dark-gray mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                </svg>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-amazon-blue mb-4">No Active Listings</h2>
+            
+            {% if user.is_authenticated %}
+                <p class="text-amazon-dark-gray mb-6">
+                    Be the first to start an auction! Create your listing now and connect with buyers.
+                </p>
+                <a href="{% url 'addlisting' %}" class="btn btn-primary btn-large">
+                    <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Create Your First Listing
+                </a>
+            {% else %}
+                <p class="text-amazon-dark-gray mb-6">
+                    Join our community to start buying and selling amazing items through auctions.
+                </p>
+                <div class="space-y-3">
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-large btn-block">
+                        <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                        </svg>
+                        Login to Start Bidding
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-secondary btn-large btn-block">
+                        <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                        Create Account
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- Featured Categories Section -->
+<div class="mt-12 bg-white rounded-lg p-6 shadow-sm">
+    <h3 class="text-lg font-bold text-amazon-blue mb-4">Browse by Category</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="{% url 'category' %}" class="p-4 border border-amazon-border rounded-lg hover:border-amazon-orange hover:bg-amazon-light-gray transition-colors duration-200 text-center">
+            <div class="text-amazon-blue font-medium">Electronics</div>
+            <div class="text-amazon-dark-gray text-sm">Gadgets & Tech</div>
+        </a>
+        <a href="{% url 'category' %}" class="p-4 border border-amazon-border rounded-lg hover:border-amazon-orange hover:bg-amazon-light-gray transition-colors duration-200 text-center">
+            <div class="text-amazon-blue font-medium">Fashion</div>
+            <div class="text-amazon-dark-gray text-sm">Clothing & Accessories</div>
+        </a>
+        <a href="{% url 'category' %}" class="p-4 border border-amazon-border rounded-lg hover:border-amazon-orange hover:bg-amazon-light-gray transition-colors duration-200 text-center">
+            <div class="text-amazon-blue font-medium">Home & Garden</div>
+            <div class="text-amazon-dark-gray text-sm">Furniture & Decor</div>
+        </a>
+        <a href="{% url 'category' %}" class="p-4 border border-amazon-border rounded-lg hover:border-amazon-orange hover:bg-amazon-light-gray transition-colors duration-200 text-center">
+            <div class="text-amazon-blue font-medium">Collectibles</div>
+            <div class="text-amazon-dark-gray text-sm">Art & Antiques</div>
+        </a>
+    </div>
+</div>
+
+<!-- Trust & Security Section -->
+<div class="mt-8 bg-amazon-blue rounded-lg p-6 text-white">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="text-center">
+            <div class="bg-amazon-orange rounded-full p-3 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <svg class="w-6 h-6 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h4 class="font-semibold mb-2">Secure Bidding</h4>
+            <p class="text-sm text-gray-300">All transactions are protected with industry-standard security</p>
+        </div>
+        <div class="text-center">
+            <div class="bg-amazon-orange rounded-full p-3 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <svg class="w-6 h-6 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <h4 class="font-semibold mb-2">Real-time Updates</h4>
+            <p class="text-sm text-gray-300">Get instant notifications when someone outbids you</p>
+        </div>
+        <div class="text-center">
+            <div class="bg-amazon-orange rounded-full p-3 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <svg class="w-6 h-6 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+            </div>
+            <h4 class="font-semibold mb-2">Trusted Community</h4>
+            <p class="text-sm text-gray-300">Join thousands of verified buyers and sellers</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

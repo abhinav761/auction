@@ -1,0 +1,345 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column - Product Image -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <div class="aspect-square max-w-lg mx-auto mb-6">
+                        <img src="{{product.product_image}}" 
+                             alt="{{product.product_name}}"
+                             class="w-full h-full object-cover rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                    </div>
+                    
+                    <!-- Product Title -->
+                    <div class="text-center lg:text-left">
+                        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                            {{product.product_name}}
+                        </h1>
+                        <p class="text-gray-600 flex items-center justify-center lg:justify-start">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Listed by <span class="font-semibold ml-1 text-orange-600">{{ auctioner.username }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Auction Details -->
+            <div class="space-y-6">
+                <!-- Auction Status Card -->
+                <div class="bg-white rounded-lg shadow-sm border">
+                    <div class="p-6">
+                        {% if product.is_active %}
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                    </svg>
+                                    Active Auction
+                                </span>
+                                <div class="text-right">
+                                    <div class="text-xs text-gray-500">Ends in</div>
+                                    <div class="text-sm font-semibold text-red-600">2d 14h 32m</div>
+                                </div>
+                            </div>
+
+                            <!-- Current Bid -->
+                            <div class="mb-6">
+                                <div class="text-sm text-gray-600 mb-1">Current Bid</div>
+                                <div class="text-3xl font-bold text-gray-900">${{ product.base_price }}</div>
+                                {% if highestbidder %}
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        Highest bidder: <span class="font-semibold">{{highestbidder.username}}</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Watchlist Button -->
+                            {% if user.is_authenticated %}
+                                <div class="mb-4">
+                                    {% if not is_in_watchlist %}
+                                        <form action="{% url 'watchlist' product.pk %}" method="post">
+                                            {% csrf_token %}
+                                            <button type="submit" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                                </svg>
+                                                Add to Watchlist
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <div class="flex items-center justify-center px-4 py-2 bg-orange-50 border border-orange-200 rounded-md text-sm font-medium text-orange-700">
+                                            <svg class="w-4 h-4 mr-2 fill-current" viewBox="0 0 24 24">
+                                                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                                            </svg>
+                                            In Your Watchlist
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+
+                            <!-- Bidding Section -->
+                            {% if user.is_authenticated %}
+                                {% if user.id != auctioner.id %}
+                                    <!-- Outbid Warning -->
+                                    {% if user in outbiders %}
+                                        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                                            <div class="flex items-center">
+                                                <svg class="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/>
+                                                </svg>
+                                                <span class="text-sm text-red-700 font-medium">You've been outbid! Place a higher bid to win.</span>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    <!-- Bid Button -->
+                                    <form method="get" action="{% url 'addbid' product.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold py-3 px-6 rounded-md hover:from-orange-600 hover:to-orange-700 transition-all transform hover:-translate-y-0.5 hover:shadow-lg">
+                                            Place Bid
+                                        </button>
+                                    </form>
+
+                                    {% if status %}
+                                        <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                                            <div class="text-sm text-blue-800">{{status}}</div>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <!-- Close Auction Button (for auctioner) -->
+                                    <form method="post" action="{% url 'closelisting' product.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="w-full bg-red-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-red-700 transition-colors">
+                                            Close Auction
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% else %}
+                                <div class="text-center p-4 bg-gray-50 border border-gray-200 rounded-md">
+                                    <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <a href="{% url 'login' %}" class="text-orange-600 hover:text-orange-700 font-medium">Login to place a bid</a>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <!-- Closed Auction -->
+                            <div class="text-center">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 mb-4">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/>
+                                    </svg>
+                                    Auction Closed
+                                </span>
+                                
+                                <div class="mb-4">
+                                    <div class="text-sm text-gray-600 mb-1">Winning Bid</div>
+                                    <div class="text-3xl font-bold text-gray-900">${{ product.base_price }}</div>
+                                </div>
+
+                                {% if highestbidder %}
+                                    {% if highestbidder.pk == user.id %}
+                                        <div class="p-4 bg-green-50 border border-green-200 rounded-md">
+                                            <div class="flex items-center justify-center">
+                                                <svg class="w-6 h-6 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                                </svg>
+                                                <span class="text-green-800 font-semibold">Congratulations! You won this auction!</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-md">
+                                            <div class="text-gray-700">
+                                                Winner: <span class="font-semibold">{{highestbidder.username}}</span>
+                                            </div>
+                                            {% if user in outbiders %}
+                                                <div class="text-sm text-red-600 mt-1">You were outbid</div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Seller Info Card -->
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Seller Information</h3>
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                            <span class="text-orange-600 font-semibold text-lg">{{auctioner.username.0|upper}}</span>
+                        </div>
+                        <div>
+                            <div class="font-medium text-gray-900">{{auctioner.username}}</div>
+                            <div class="text-sm text-gray-600">Active seller</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="mt-8">
+            <div class="bg-white rounded-lg shadow-sm border">
+                <div class="p-6 border-b">
+                    <h3 class="text-xl font-semibold text-gray-900">Comments & Questions</h3>
+                </div>
+                
+                <!-- Add Comment Form -->
+                {% if product.is_active %}
+                    <div class="p-6 border-b bg-gray-50">
+                        {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'addcomment' product.pk %}" class="space-y-4">
+                                {% csrf_token %}
+                                <div>
+                                    <textarea name="content" 
+                                              rows="3" 
+                                              placeholder="Ask a question or leave a comment..."
+                                              class="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+                                              required></textarea>
+                                </div>
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-md hover:bg-orange-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                    Add Comment
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="text-center p-4">
+                                <a href="{% url 'login' %}" class="text-orange-600 hover:text-orange-700 font-medium">Login to comment</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Comments List -->
+                <div class="p-6">
+                    {% if comments %}
+                        <div class="space-y-6">
+                            {% for comment in comments %}
+                                <div class="flex space-x-4">
+                                    <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span class="text-gray-600 font-medium text-sm">{{comment.name.username.0|upper}}</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center space-x-2 mb-1">
+                                            <span class="font-medium text-gray-900">{{comment.name.username}}</span>
+                                            <span class="text-gray-500 text-sm">{{comment.comment_time|date:"M j, Y g:i A"}}</span>
+                                        </div>
+                                        <p class="text-gray-700 leading-relaxed">{{comment.comment_content}}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-8">
+                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                            <p class="text-gray-500">No comments yet. Be the first to ask a question!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Smooth transitions */
+    * {
+        transition: all 0.2s ease;
+    }
+
+    /* Enhanced focus states */
+    textarea:focus, button:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    }
+
+    /* Image hover effect */
+    .aspect-square img {
+        transition: transform 0.3s ease;
+    }
+    
+    .aspect-square:hover img {
+        transform: scale(1.02);
+    }
+
+    /* Button hover effects */
+    button:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Comment animations */
+    .space-y-6 > * {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script>
+    // Auto-resize textarea
+    document.querySelector('textarea')?.addEventListener('input', function(e) {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+
+    // Countdown timer simulation (you'll need to implement with real data)
+    function updateCountdown() {
+        const countdownElement = document.querySelector('.text-red-600');
+        if (countdownElement && countdownElement.textContent.includes('d')) {
+            // This is a placeholder - implement with your actual auction end time
+            console.log('Update countdown timer with real auction end time');
+        }
+    }
+
+    // Form submission loading states
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const button = this.querySelector('button[type="submit"]');
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-current inline" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                `;
+            }
+        });
+    });
+
+    // Smooth scroll for mobile
+    if (window.innerWidth < 768) {
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    }
+</script>
+{% endblock %}

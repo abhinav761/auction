@@ -1,0 +1,97 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header Section -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div class="flex items-center space-x-3">
+                <svg class="w-8 h-8 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7v10c0 5.55 3.84 9.99 9 11 5.16-1.01 9-5.45 9-11V7l-10-5z"/>
+                </svg>
+                <h1 class="text-2xl font-bold text-gray-900">Create New Auction</h1>
+            </div>
+            <p class="text-gray-600 mt-2">List your item and start selling to millions of buyers</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-sm border">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold text-gray-900">Item Details</h2>
+                <p class="text-gray-600 mt-1">Fill in the information below to create your auction listing</p>
+            </div>
+
+            <form action="{% url 'addlisting' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" 
+                class="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-md hover:from-orange-600 hover:to-orange-700 transition-all font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            Start Auction
+        </button>            </form>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-blue-900 mb-3">💡 Tips for Better Sales</h3>
+            <ul class="space-y-2 text-blue-800">
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    Use clear, high-quality photos from multiple angles
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    Write detailed descriptions including dimensions and materials
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    Set competitive starting prices to attract more bidders
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    Respond quickly to buyer questions
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Custom scrollbar for textarea */
+    textarea::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    textarea::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    
+    textarea::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+    
+    textarea::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+
+    /* Enhanced focus states */
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    }
+
+    /* Smooth transitions */
+    * {
+        transition: all 0.2s ease;
+    }
+
+    /* File upload hover effect */
+    .border-dashed:hover {
+        background-color: rgba(249, 115, 22, 0.02);
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,198 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>{% block title %}Auctions{% endblock %}</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="{% static 'auctions/styles.css' %}" rel="stylesheet">
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            'amazon-orange': '#FF9900',
+                            'amazon-blue': '#232F3E',
+                            'amazon-light-blue': '#37475A',
+                            'amazon-yellow': '#FEBD69',
+                            'amazon-gray': '#EAEDED',
+                            'amazon-dark-gray': '#565959',
+                        },
+                        fontFamily: {
+                            'amazon': ['Amazon Ember', 'Arial', 'sans-serif'],
+                        }
+                    }
+                }
+            }
+        </script>
+    </head>
+    <body class="bg-white font-amazon">
+        <!-- Main Header -->
+        <header class="bg-amazon-blue text-white">
+            <!-- Top Navigation Bar -->
+            <div class="bg-amazon-blue py-2 px-4">
+                <div class="max-w-7xl mx-auto flex items-center justify-between">
+                    <!-- Logo Section -->
+                    <div class="flex items-center space-x-6">
+                        <div class="flex items-center">
+                            <h1 class="text-2xl font-bold text-white hover:text-amazon-orange transition-colors duration-200">
+                                <a href="{% url 'index' %}">Auctions</a>
+                            </h1>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar (Amazon-style) -->
+                    <div class="hidden md:flex flex-1 max-w-2xl mx-8">
+                        <div class="flex w-full">
+                            <input 
+                                type="text" 
+                                placeholder="Search auctions..." 
+                                class="flex-1 px-4 py-2 text-black rounded-l-md focus:outline-none focus:ring-2 focus:ring-amazon-orange"
+                            >
+                            <button class="bg-amazon-orange hover:bg-orange-600 px-4 py-2 rounded-r-md transition-colors duration-200">
+                                <svg class="w-5 h-5 text-amazon-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Side Navigation -->
+                    <div class="flex items-center space-x-6">
+                        {% if user.is_authenticated %}
+                            <div class="hidden md:block">
+                                <a href="{% url 'addlisting' %}" class="bg-amazon-orange hover:bg-orange-600 text-amazon-blue px-4 py-2 rounded-md font-medium transition-colors duration-200">
+                                    Start Auction
+                                </a>
+                            </div>
+                            <div class="text-sm">
+                                <div class="text-gray-300">Hello</div>
+                                <div class="font-bold hover:text-amazon-orange transition-colors duration-200">
+                                    <a href="{% url 'user' %}">{{ user.username }}</a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-sm text-gray-300">
+                                <div>Hello</div>
+                                <div class="font-bold">Sign in to start bidding</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Secondary Navigation -->
+            <nav class="bg-amazon-light-blue py-2 px-4">
+                <div class="max-w-7xl mx-auto">
+                    <ul class="flex items-center space-x-6 text-sm">
+                        <li>
+                            <a href="{% url 'index' %}" class="hover:text-amazon-orange transition-colors duration-200 flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                                Active Listings
+                            </a>
+                        </li>
+                        {% if user.is_authenticated %}
+                            <li>
+                                <a href="{% url 'user' %}" class="hover:text-amazon-orange transition-colors duration-200 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    My Account
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'logout' %}" class="hover:text-amazon-orange transition-colors duration-200 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                    </svg>
+                                    Sign Out
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{% url 'login' %}" class="hover:text-amazon-orange transition-colors duration-200 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                                    </svg>
+                                    Sign In
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{% url 'register' %}" class="hover:text-amazon-orange transition-colors duration-200 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                                    </svg>
+                                    Register
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden bg-amazon-blue px-4 py-2">
+            <button class="text-white hover:text-amazon-orange transition-colors duration-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="min-h-screen bg-amazon-gray">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                {% block body %}
+                {% endblock %}
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-amazon-blue text-white mt-auto">
+            <div class="max-w-7xl mx-auto px-4 py-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Get to Know Us</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">About Auctions</a></li>
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">How It Works</a></li>
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Seller Guidelines</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Make Money with Us</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Sell on Auctions</a></li>
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Become a Partner</a></li>
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Advertise Your Products</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Let Us Help You</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Your Account</a></li>
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Shipping Rates</a></li>
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Returns</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold mb-4">Connect with Us</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Facebook</a></li>
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Twitter</a></li>
+                            <li><a href="#" class="hover:text-amazon-orange transition-colors duration-200">Instagram</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-t border-amazon-light-blue mt-8 pt-8 text-center text-sm text-gray-400">
+                    <p>&copy; 2025 Auctions. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </body>
+</html>
