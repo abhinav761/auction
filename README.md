@@ -20,14 +20,11 @@ A full-stack web application that allows users to create, view, bid on, and comm
 
 ## 📂 Project Setup
 ### Clone the repo:
-```bash
 git clone https://github.com/Bhanu-Vardhan-Reddy/auction-website.git
 cd auction-website
 Install dependencies:
 pip install -r requirements.txt
 Run migrations & start server:
-bash
-Copy code
 python manage.py migrate
 python manage.py runserver
 Open your browser: http://127.0.0.1:8000
